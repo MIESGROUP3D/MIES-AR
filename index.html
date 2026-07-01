@@ -148,6 +148,14 @@
                         </button>
                     </div>
 
+                    <!-- Overlay UI: Botón Reactivar Animación (visible al terminar la animación) -->
+                    <div id="replay-container" class="absolute bottom-6 left-6 z-10 hidden">
+                        <button id="replay-anim" class="flex items-center gap-2 bg-white/10 backdrop-blur text-white font-semibold py-3 px-5 rounded-full shadow-lg border border-white/20 hover:bg-white/20 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Reactivar animación">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Reactivar animación
+                        </button>
+                    </div>
+
                     <!-- Indicador de estado AR -->
                     <div id="ar-status-toast" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-sm px-4 py-2 rounded-full border border-white/20 opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
@@ -263,6 +271,8 @@
             const helpBtn = document.getElementById('help-btn');
             const closeHelpBtn = document.getElementById('close-help-btn');
             const closeHelpIcon = document.getElementById('close-help');
+            const replayContainer = document.getElementById('replay-container');
+            const replayBtn = document.getElementById('replay-anim');
 
             // --- Gestión de Carga de Modelos ---
 
@@ -337,9 +347,36 @@
                 });
             });
 
+            // --- Control de Animación ---
+
+            // Reproduce la animación una sola vez (desde el inicio) y oculta el botón de reactivar
+            function playAnimationOnce() {
+                if (modelViewer.availableAnimations && modelViewer.availableAnimations.length > 0) {
+                    replayContainer.classList.add('hidden');
+                    modelViewer.currentTime = 0;
+                    try {
+                        modelViewer.play({ repetitions: 1 });
+                    } catch (e) {
+                        modelViewer.play();
+                    }
+                }
+            }
+
+            // Reactivar animación al hacer clic
+            replayBtn.addEventListener('click', playAnimationOnce);
+
+            // Cuando la animación termina, mostrar el botón para reactivarla
+            modelViewer.addEventListener('finished', () => {
+                if (modelViewer.availableAnimations && modelViewer.availableAnimations.length > 0) {
+                    replayContainer.classList.remove('hidden');
+                }
+            });
+
             // Escuchar eventos del visor para actualizar UI
             modelViewer.addEventListener('load', () => {
                 document.getElementById('loading-spinner').style.display = 'none';
+                // Arranca la animación una vez (sobre-escribe el bucle de autoplay para poder detectar el final)
+                playAnimationOnce();
             });
 
             // Evento que se dispara cuando la sesión AR cambia de estado
