@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MIES-AR • Visor 3D y Realidad Aumentada</title>
     <meta name="description" content="Visualización profesional de modelos 3D en Realidad Aumentada con detección automática de superficies.">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#07080c">
 
     <!-- Favicon (emoji, sin archivos externos) -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A4%96%3C/text%3E%3C/svg%3E">
@@ -17,23 +17,30 @@
     <meta property="og:url" content="https://jeremyh00.github.io/AR-MIES-WEB/">
     <meta name="twitter:card" content="summary_large_image">
 
+    <!-- Preconexiones para rendimiento -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://ajax.googleapis.com" crossorigin>
+
+    <!-- Tipografía Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Google <model-viewer> (CDN) -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
-    <!-- Configuración de Tailwind y Estilos Personalizados -->
+    <!-- Configuración de Tailwind -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
                     colors: {
-                        black: '#000000',
-                        white: '#ffffff',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        ink: '#07080c',
+                        accent: '#6366f1',
+                        accent2: '#22d3ee',
                     }
                 }
             }
@@ -41,88 +48,224 @@
     </script>
 
     <style>
-        /* Estilos base para el modo oscuro profesional y modelo viewer */
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
+        :root {
+            --bg: #07080c;
+            --text: #f4f5f7;
+            --text-dim: rgba(244,245,247,.62);
+            --text-faint: rgba(244,245,247,.40);
+            --border: rgba(255,255,255,.08);
+            --border-strong: rgba(255,255,255,.16);
+            --surface: rgba(255,255,255,.035);
+            --accent: #6366f1;
+            --accent-2: #22d3ee;
+            --accent-grad: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+            --radius: 20px;
+            --shadow: 0 20px 60px -20px rgba(0,0,0,.7);
         }
 
-        /* Personalización de model-viewer para integrarse con el diseño negro/blanco */
+        * { -webkit-tap-highlight-color: transparent; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            font-feature-settings: "cv02","cv03","cv04","cv11";
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fondo con glows sutiles para dar profundidad */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(60rem 40rem at 12% -10%, rgba(99,102,241,.16), transparent 60%),
+                radial-gradient(50rem 40rem at 100% 0%, rgba(34,211,238,.10), transparent 55%),
+                radial-gradient(40rem 40rem at 50% 120%, rgba(99,102,241,.08), transparent 60%);
+            pointer-events: none;
+        }
+
+        /* ---------- model-viewer ---------- */
         model-viewer {
             width: 100%;
             height: 100%;
             --poster-color: transparent;
-            --progress-bar-color: #ffffff;
+            --progress-bar-color: var(--accent-2);
+            --progress-mask: transparent;
+        }
+        model-viewer::part(ar-button) { display: none; }
+
+        /* ---------- Componentes ---------- */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            position: relative;
+        }
+        /* Realce superior sutil en las tarjetas */
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 40%);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
         }
 
-        /* Ocultar el botón predeterminado de AR de model-viewer para usar nuestro botón personalizado */
-        model-viewer::part(ar-button) {
-            display: none;
+        /* Marco del visor con glow del acento */
+        .viewer-frame {
+            background:
+                radial-gradient(80% 80% at 50% 30%, rgba(99,102,241,.10), transparent 70%),
+                linear-gradient(180deg, #0d0f16, #090a10);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
         }
 
-        /* Efecto de carga sutil */
-        .loading-overlay {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+        /* Botones */
+        .btn { font-weight: 600; border-radius: 9999px; transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease; }
+        .btn:active { transform: translateY(1px) scale(.99); }
+
+        .btn-primary {
+            background: var(--accent-grad);
+            color: #06070c;
+            box-shadow: 0 10px 30px -8px rgba(99,102,241,.55);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 16px 40px -8px rgba(99,102,241,.7); }
+
+        .btn-glass {
+            background: rgba(12,14,22,.72);
+            color: #fff;
+            border: 1px solid var(--border-strong);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .btn-glass:hover { background: rgba(22,25,36,.85); border-color: rgba(255,255,255,.28); transform: translateY(-1px); }
+
+        /* Pasos de instrucciones */
+        .step-num {
+            flex: none;
+            width: 28px; height: 28px;
+            display: grid; place-items: center;
+            border-radius: 9999px;
+            font-size: 12px; font-weight: 700;
+            color: #fff;
+            background: rgba(99,102,241,.15);
+            border: 1px solid rgba(99,102,241,.4);
         }
 
-        /* Estilos para la zona de arrastrar y soltar */
+        /* Zona de arrastre */
         .drop-zone {
-            border: 2px dashed #333;
-            transition: all 0.3s ease;
+            border: 1.5px dashed var(--border-strong);
+            border-radius: 16px;
+            transition: border-color .25s ease, background .25s ease, transform .25s ease;
         }
-        .drop-zone.active {
-            border-color: #fff;
-            background-color: rgba(255, 255, 255, 0.05);
+        .drop-zone:hover { border-color: rgba(99,102,241,.6); background: rgba(99,102,241,.04); }
+        .drop-zone.active { border-color: var(--accent-2); background: rgba(34,211,238,.08); transform: scale(1.01); }
+
+        /* Chip / badge */
+        .chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 600; letter-spacing: .04em;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            padding: 5px 10px; border-radius: 9999px;
+        }
+        .dot-live { width: 7px; height: 7px; border-radius: 9999px; background: var(--accent-2); box-shadow: 0 0 0 0 rgba(34,211,238,.6); animation: pulse-dot 2s infinite; }
+
+        /* Logo */
+        .logo-badge {
+            width: 38px; height: 38px; border-radius: 11px;
+            display: grid; place-items: center;
+            background: var(--accent-grad);
+            box-shadow: 0 8px 24px -8px rgba(99,102,241,.7);
+            color: #06070c;
         }
 
-        /* Ajuste de barra de desplazamiento */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .gradient-text {
+            background: linear-gradient(90deg,#fff, #c7d2fe 60%, #a5f3fc);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
         }
-        ::-webkit-scrollbar-track {
-            background: #000;
+
+        /* Accesibilidad: foco visible por teclado */
+        :focus-visible {
+            outline: 2px solid var(--accent-2);
+            outline-offset: 2px;
+            border-radius: 8px;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
+
+        /* Animación de entrada del modal */
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .animate-fade-in-up { animation: fade-in-up .28s cubic-bezier(.16,1,.3,1); }
+
+        @keyframes pulse-dot { 0% { box-shadow: 0 0 0 0 rgba(34,211,238,.5);} 70% { box-shadow: 0 0 0 8px rgba(34,211,238,0);} 100% { box-shadow:0 0 0 0 rgba(34,211,238,0);} }
+
+        /* Barra de desplazamiento */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.22); background-clip: padding-box; }
+
+        /* Respeto por usuarios con movimiento reducido */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
     <!-- Encabezado -->
-    <header class="w-full border-b border-white/10 bg-black sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header class="w-full sticky top-0 z-50 border-b border-white/10 bg-ink/70 backdrop-blur-xl">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <!-- Icono simple de cubo 3D con SVG -->
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-                <h1 class="text-xl font-bold tracking-wider uppercase">MIES-AR</h1>
+                <span class="logo-badge">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                </span>
+                <div class="leading-tight">
+                    <h1 class="text-lg font-extrabold tracking-wide">MIES<span class="text-accent2">-AR</span></h1>
+                    <p class="text-[11px] text-white/40 -mt-0.5">Visor 3D · Realidad Aumentada</p>
+                </div>
             </div>
-            <div class="hidden md:block">
-                <span class="text-xs font-mono text-white/50 border border-white/20 px-2 py-1 rounded">SurfaceFit AR v1.0</span>
+            <div class="flex items-center gap-2">
+                <span class="chip hidden sm:inline-flex"><span class="dot-live"></span> WebXR activo</span>
+                <span class="chip font-mono">v1.0</span>
             </div>
         </div>
     </header>
 
     <!-- Contenido Principal -->
-    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
-            
+    <main class="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+
+        <!-- Hero -->
+        <div class="mb-8 max-w-2xl">
+            <span class="chip mb-4"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Renderizado en tiempo real</span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight gradient-text">Visualiza modelos 3D y colócalos en tu espacio</h2>
+            <p class="mt-3 text-white/55 text-sm sm:text-base">Explora el modelo con controles interactivos y actívalo en Realidad Aumentada para verlo a escala real sobre cualquier superficie.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+
             <!-- Columna Izquierda: Visualizador 3D -->
             <section class="lg:col-span-8 flex flex-col gap-4">
-                <div class="relative w-full aspect-square lg:aspect-[4/3] bg-[#111] border border-white/10 rounded-lg overflow-hidden group shadow-2xl">
-                    
+                <div class="viewer-frame relative w-full aspect-square lg:aspect-[4/3] group">
+
                     <!-- El Componente Model Viewer -->
-                    <model-viewer 
+                    <model-viewer
                         id="ar-model"
                         src="./bumblebee_-_optimus_prime_transform_animation.glb"
                         ios-src="./bumblebee.usdz"
@@ -134,112 +277,104 @@
                         animation-crossfade-duration="0"
                         ar-scale="auto"
                         ar-placement="auto"
-                        camera-controls 
+                        camera-controls
                         touch-action="pan-y"
-                        auto-rotate 
+                        auto-rotate
                         auto-rotate-delay="1000"
-                        camera-orbit="45deg 55deg 2.5m"
-                        min-camera-orbit="auto auto 2.5m"
-                        max-camera-orbit="auto auto 4m"
+                        camera-orbit="20deg 72deg 105%"
+                        min-camera-orbit="auto auto auto"
+                        max-camera-orbit="auto auto 160%"
                         interaction-prompt="none"
                         loading="eager"
                         reveal="auto"
                         aria-label="Visualizador 3D interactivo. Arrastra para rotar, scroll para zoom."
                     >
                         <!-- Overlay de carga interno -->
-                        <div id="loading-spinner" slot="poster" class="flex flex-col items-center justify-center w-full h-full bg-black gap-5">
-                            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
-                            <div class="w-48 max-w-[70%]">
-                                <div class="h-1.5 w-full bg-white/15 rounded-full overflow-hidden">
-                                    <div id="load-bar" class="h-full w-0 bg-white transition-all duration-150 ease-out"></div>
+                        <div id="loading-spinner" slot="poster" class="flex flex-col items-center justify-center w-full h-full gap-5">
+                            <div class="animate-spin rounded-full h-11 w-11 border-2 border-white/15 border-t-accent2"></div>
+                            <div class="w-52 max-w-[70%]">
+                                <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                    <div id="load-bar" class="h-full w-0 rounded-full transition-all duration-150 ease-out" style="background:linear-gradient(90deg,#6366f1,#22d3ee)"></div>
                                 </div>
-                                <p id="load-pct" class="mt-2 text-center text-xs text-white/60">Cargando modelo… 0%</p>
+                                <p id="load-pct" class="mt-2.5 text-center text-xs text-white/55">Cargando modelo… 0%</p>
                             </div>
                         </div>
                     </model-viewer>
 
                     <!-- Overlay UI: Botón AR Flotante (Solo visible si es compatible) -->
-                    <div class="absolute bottom-6 right-6 z-10">
-                        <button id="ar-button-trigger" class="flex items-center gap-2 bg-white text-black font-bold py-3 px-6 rounded-full shadow-lg hover:bg-gray-200 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Iniciar modo Realidad Aumentada">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            Iniciar AR – Colocar en superficie
+                    <div class="absolute bottom-5 right-5 z-10">
+                        <button id="ar-button-trigger" class="btn btn-primary flex items-center gap-2 py-3 px-6 text-sm" aria-label="Iniciar modo Realidad Aumentada">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            Ver en tu espacio (AR)
                         </button>
                     </div>
 
                     <!-- Overlay UI: Botón Reactivar Animación (visible al terminar la animación) -->
-                    <div id="replay-container" class="absolute bottom-6 left-6 z-10 hidden">
-                        <button id="replay-anim" class="flex items-center gap-2 bg-white text-black font-bold py-3 px-6 rounded-full shadow-lg hover:bg-gray-200 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Reactivar animación">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <div id="replay-container" class="absolute bottom-5 left-5 z-10 hidden">
+                        <button id="replay-anim" class="btn btn-glass flex items-center gap-2 py-3 px-5 text-sm" aria-label="Reactivar animación">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                             Reactivar animación
                         </button>
                     </div>
 
                     <!-- Indicador de estado AR -->
-                    <div id="ar-status-toast" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-sm px-4 py-2 rounded-full border border-white/20 opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    <div id="ar-status-toast" class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-sm px-4 py-2 rounded-full border border-white/20 opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-accent2 animate-pulse"></span>
                         <span id="ar-status-text">Buscando superficie...</span>
                     </div>
                 </div>
 
                 <!-- Información de estado actual -->
-                <div class="flex justify-between items-center text-sm text-white/50 px-2">
-                    <span id="model-name">Modelo: bumblebee_-_optimus_prime_transform_animation.glb</span>
-                    <span id="interaction-hint">Arrastra para rotar • Scroll para zoom</span>
+                <div class="flex flex-wrap justify-between items-center gap-2 text-xs sm:text-sm text-white/45 px-1">
+                    <span id="model-name" class="truncate max-w-full">Modelo: bumblebee_-_optimus_prime_transform_animation.glb</span>
+                    <span id="interaction-hint" class="flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg> Arrastra para rotar · Scroll para zoom</span>
                 </div>
             </section>
 
             <!-- Columna Derecha: Controles e Información -->
             <section class="lg:col-span-4 flex flex-col gap-6">
-                
+
                 <!-- Tarjeta de Carga de Archivos -->
-                <div class="bg-white/5 border border-white/10 p-6 rounded-lg">
-                    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                        Cargar Modelo Propio
-                    </h2>
-                    
-                    <div id="drop-zone" class="drop-zone rounded-lg p-8 text-center cursor-pointer hover:border-white/50 relative">
+                <div class="card p-6">
+                    <h3 class="text-base font-semibold mb-4 flex items-center gap-2.5">
+                        <span class="text-accent2"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></span>
+                        Cargar modelo propio
+                    </h3>
+
+                    <div id="drop-zone" class="drop-zone p-7 text-center cursor-pointer relative">
                         <input type="file" id="file-input" accept=".glb,.gltf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" aria-label="Subir archivo GLB o GLTF">
                         <div class="flex flex-col items-center justify-center gap-3 pointer-events-none">
-                            <svg class="w-10 h-10 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                            <svg class="w-10 h-10 text-white/25" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                             <p class="text-sm font-medium text-white/80">Arrastra tu archivo aquí</p>
-                            <p class="text-xs text-white/40">o haz clic para explorar (GLB/GLTF)</p>
+                            <p class="text-xs text-white/40">o haz clic para explorar · GLB / GLTF</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tarjeta de Instrucciones -->
-                <div class="bg-white/5 border border-white/10 p-6 rounded-lg flex-grow">
-                    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Instrucciones
-                    </h2>
-                    
-                    <ol class="space-y-4 text-sm text-white/70 list-decimal list-inside">
-                        <li>
-                            <span class="text-white font-medium">Visualización:</span> Usa un dedo o el ratón para rotar el modelo en la vista previa.
-                        </li>
-                        <li>
-                            <span class="text-white font-medium">Iniciar AR:</span> Presiona el botón "Iniciar AR". La cámara se activará.
-                        </li>
-                        <li>
-                            <span class="text-white font-medium">Detección:</span> Mueve tu dispositivo lentamente hasta que se detecte una superficie plana (suelo o mesa). Verás un indicador visual.
-                        </li>
-                        <li>
-                            <span class="text-white font-medium">Colocación:</span> El modelo se anclará automáticamente a la superficie detectada.
-                        </li>
-                        <li>
-                            <span class="text-white font-medium">Interacción:</span> Usa dos dedos para mover, escalar o rotar el objeto en el mundo real.
-                        </li>
+                <div class="card p-6 flex-grow">
+                    <h3 class="text-base font-semibold mb-5 flex items-center gap-2.5">
+                        <span class="text-accent2"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+                        Cómo usarlo
+                    </h3>
+
+                    <ol class="space-y-4 text-sm text-white/65">
+                        <li class="flex gap-3"><span class="step-num">1</span><span><span class="text-white font-medium">Visualiza:</span> arrastra con el dedo o el ratón para rotar el modelo.</span></li>
+                        <li class="flex gap-3"><span class="step-num">2</span><span><span class="text-white font-medium">Inicia AR:</span> pulsa “Ver en tu espacio” y se activará la cámara.</span></li>
+                        <li class="flex gap-3"><span class="step-num">3</span><span><span class="text-white font-medium">Detecta:</span> mueve el dispositivo hasta encontrar una superficie plana.</span></li>
+                        <li class="flex gap-3"><span class="step-num">4</span><span><span class="text-white font-medium">Coloca:</span> el modelo se ancla automáticamente a la superficie.</span></li>
+                        <li class="flex gap-3"><span class="step-num">5</span><span><span class="text-white font-medium">Interactúa:</span> con dos dedos mueve, escala o rota el objeto.</span></li>
                     </ol>
 
-                    <div class="mt-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded text-xs text-blue-200">
-                        <strong>Nota técnica:</strong> Esta herramienta utiliza WebXR. Requiere un dispositivo compatible (Android con ARCore o iOS con ARKit).
+                    <div class="mt-6 p-4 rounded-xl text-xs text-indigo-100/80 flex gap-2.5" style="background:rgba(99,102,241,.10);border:1px solid rgba(99,102,241,.28)">
+                        <svg class="w-4 h-4 flex-none mt-0.5 text-accent2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span><strong class="text-white">Nota técnica:</strong> usa WebXR. Requiere Android con ARCore o iPhone/iPad con ARKit (Safari).</span>
                     </div>
                 </div>
 
                 <!-- Botón de Ayuda -->
-                <button id="help-btn" class="w-full py-3 border border-white/20 rounded hover:bg-white/10 transition-colors text-sm font-medium">
+                <button id="help-btn" class="w-full py-3 rounded-full border border-white/15 hover:bg-white/5 hover:border-white/25 transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     ¿Necesitas ayuda con tu dispositivo?
                 </button>
 
@@ -248,29 +383,27 @@
     </main>
 
     <!-- Footer -->
-    <footer class="w-full border-t border-white/10 py-6 mt-8 bg-black">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-white/40 text-xs">
-                &copy; 2026 MIES-AR. Todos los derechos reservados. <br>
-                Desarrollado con Google model-viewer y Tailwind CSS.
-            </p>
+    <footer class="w-full border-t border-white/10 py-7 mt-10">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center">
+            <p class="text-white/40 text-xs">&copy; 2026 MIES-AR · Todos los derechos reservados.</p>
+            <p class="text-white/30 text-xs">Desarrollado con <span class="text-white/50">model-viewer</span> · <span class="text-white/50">Tailwind CSS</span></p>
         </div>
     </footer>
 
     <!-- Modal de Ayuda -->
-    <div id="help-modal" class="fixed inset-0 z-[100] bg-black/90 hidden items-center justify-center backdrop-blur-sm p-4">
-        <div class="bg-[#111] border border-white/20 rounded-lg max-w-md w-full p-6 relative animate-fade-in-up">
-            <button id="close-help" class="absolute top-4 right-4 text-white/50 hover:text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    <div id="help-modal" class="fixed inset-0 z-[100] bg-black/80 hidden items-center justify-center backdrop-blur-md p-4">
+        <div class="card animate-fade-in-up max-w-md w-full p-6 relative" style="background:#0d0f16">
+            <button id="close-help" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors" aria-label="Cerrar">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
-            <h3 class="text-xl font-bold mb-4 text-white">Soporte y Dispositivos</h3>
+            <h3 class="text-xl font-bold mb-4 text-white">Soporte y dispositivos</h3>
             <div class="space-y-3 text-sm text-white/70">
-                <p><strong class="text-white">iOS (iPhone/iPad):</strong> Requiere iOS 12+. Safari abrirá automáticamente la app visor ARKit.</p>
-                <p><strong class="text-white">Android:</strong> Requiere Chrome y un dispositivo compatible con ARCore (servicio de Google Play).</p>
-                <p><strong class="text-white">PC de Escritorio:</strong> La función AR no está disponible en PC, pero puedes usar la vista previa 3D interactiva.</p>
-                <p>Si el modelo no carga, asegúrate de que el archivo .glb no esté corrupto.</p>
+                <p><strong class="text-white">iOS (iPhone/iPad):</strong> requiere iOS 12+. Safari abre automáticamente el visor AR de ARKit (Quick Look).</p>
+                <p><strong class="text-white">Android:</strong> requiere Chrome y un dispositivo compatible con ARCore (servicios de Google Play).</p>
+                <p><strong class="text-white">PC de escritorio:</strong> la función AR no está disponible, pero puedes usar la vista previa 3D interactiva.</p>
+                <p class="text-white/50">Si el modelo no carga, verifica que el archivo .glb no esté dañado.</p>
             </div>
-            <button id="close-help-btn" class="mt-6 w-full bg-white text-black py-2 rounded font-medium hover:bg-gray-200">Entendido</button>
+            <button id="close-help-btn" class="btn btn-primary mt-6 w-full py-2.5 text-sm">Entendido</button>
         </div>
     </div>
 
@@ -300,7 +433,7 @@
                 // Validar tipo de archivo
                 const validExtensions = ['glb', 'gltf'];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
-                
+
                 if (!validExtensions.includes(fileExtension)) {
                     showToast('Error: Por favor sube archivos .glb o .gltf', 'error');
                     return;
@@ -309,7 +442,7 @@
                 const objectURL = URL.createObjectURL(file);
                 modelViewer.src = objectURL;
                 modelNameSpan.textContent = `Modelo: ${file.name}`;
-                
+
                 // Feedback visual
                 showToast('Modelo cargado correctamente. Listo para visualizar.', 'success');
             }
@@ -356,7 +489,7 @@
                 // Mostrar estado de "Buscando" antes de que el navegador tome el control
                 arStatusToast.style.opacity = '1';
                 arStatusText.textContent = "Iniciando cámara y buscando superficie...";
-                
+
                 // Llamada nativa a la API de model-viewer
                 modelViewer.activateAR().catch((error) => {
                     console.error("Error al iniciar AR:", error);
@@ -418,7 +551,7 @@
             // --- Sistema de Notificaciones (Toast) ---
             function showToast(message, type = 'info') {
                 const toast = document.createElement('div');
-                toast.className = `fixed bottom-4 left-4 z-50 px-4 py-3 rounded shadow-lg border text-sm transition-all duration-500 transform translate-y-10 opacity-0 ${
+                toast.className = `fixed bottom-4 left-4 z-50 px-4 py-3 rounded-xl shadow-lg border text-sm transition-all duration-500 transform translate-y-10 opacity-0 ${
                     type === 'error' ? 'bg-red-900/90 border-red-500 text-red-100' : 'bg-white text-black border-transparent'
                 }`;
                 toast.textContent = message;
@@ -452,6 +585,10 @@
             closeHelpIcon.addEventListener('click', () => toggleHelp(false));
             helpModal.addEventListener('click', (e) => {
                 if (e.target === helpModal) toggleHelp(false);
+            });
+            // Cerrar con tecla Escape (accesibilidad)
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && helpModal.classList.contains('flex')) toggleHelp(false);
             });
 
             // Manejo del estado de carga inicial
