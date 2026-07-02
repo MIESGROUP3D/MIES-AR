@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MIES-AR • SurfaceFit AR - Modelo 3D adaptativo a superficies</title>
+    <title>MIES-AR • Visor 3D y Realidad Aumentada</title>
     <meta name="description" content="Visualización profesional de modelos 3D en Realidad Aumentada con detección automática de superficies.">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Favicon (emoji, sin archivos externos) -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A4%96%3C/text%3E%3C/svg%3E">
+
+    <!-- Open Graph / redes sociales -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="MIES-AR • Visor 3D y Realidad Aumentada">
+    <meta property="og:description" content="Explora modelos 3D interactivos y colócalos en tu espacio con Realidad Aumentada.">
+    <meta property="og:url" content="https://jeremyh00.github.io/AR-MIES-WEB/">
+    <meta name="twitter:card" content="summary_large_image">
 
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -136,8 +147,14 @@
                         aria-label="Visualizador 3D interactivo. Arrastra para rotar, scroll para zoom."
                     >
                         <!-- Overlay de carga interno -->
-                        <div id="loading-spinner" slot="poster" class="flex items-center justify-center w-full h-full bg-black">
+                        <div id="loading-spinner" slot="poster" class="flex flex-col items-center justify-center w-full h-full bg-black gap-5">
                             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                            <div class="w-48 max-w-[70%]">
+                                <div class="h-1.5 w-full bg-white/15 rounded-full overflow-hidden">
+                                    <div id="load-bar" class="h-full w-0 bg-white transition-all duration-150 ease-out"></div>
+                                </div>
+                                <p id="load-pct" class="mt-2 text-center text-xs text-white/60">Cargando modelo… 0%</p>
+                            </div>
                         </div>
                     </model-viewer>
 
@@ -234,7 +251,7 @@
     <footer class="w-full border-t border-white/10 py-6 mt-8 bg-black">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <p class="text-white/40 text-xs">
-                &copy; 2024 MIES-AR. Todos los derechos reservados. <br>
+                &copy; 2026 MIES-AR. Todos los derechos reservados. <br>
                 Desarrollado con Google model-viewer y Tailwind CSS.
             </p>
         </div>
@@ -346,6 +363,15 @@
                     arStatusText.textContent = "Error al iniciar AR. Revisa la consola.";
                     setTimeout(() => { arStatusToast.style.opacity = '0'; }, 3000);
                 });
+            });
+
+            // --- Barra de Progreso de Carga ---
+            const loadBar = document.getElementById('load-bar');
+            const loadPct = document.getElementById('load-pct');
+            modelViewer.addEventListener('progress', (event) => {
+                const pct = Math.round((event.detail.totalProgress || 0) * 100);
+                if (loadBar) loadBar.style.width = pct + '%';
+                if (loadPct) loadPct.textContent = pct < 100 ? `Cargando modelo… ${pct}%` : 'Preparando escena…';
             });
 
             // --- Control de Animación ---
