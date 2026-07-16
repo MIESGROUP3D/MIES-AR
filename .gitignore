@@ -1,0 +1,6 @@
+# Modelos fuente pesados (locales; el sitio usa las versiones optimizadas de la raíz)
+Modelos_Animados/
+
+# Sistema
+Thumbs.db
+.DS_Store
