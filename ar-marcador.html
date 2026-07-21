@@ -43,7 +43,7 @@
     <a class="back" href="./">✕ Salir</a>
 
     <a-scene
-        mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; autoStart: true; uiScanning: yes; uiLoading: yes; uiError: yes"
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: yes; uiLoading: yes; uiError: yes; maxTrack: 1"
         color-space="sRGB"
         embedded
         renderer="colorManagement: true, physicallyCorrectLights: true"
@@ -52,32 +52,55 @@
         gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/">
 
         <a-assets>
-            <a-asset-item id="modelo" src="./lamborghini.glb"></a-asset-item>
+            <a-asset-item id="m-optimus" src="./bumblebee_-_optimus_prime_transform_animation.glb"></a-asset-item>
+            <a-asset-item id="m-maqueta1" src="./city.glb"></a-asset-item>
+            <a-asset-item id="m-maqueta2" src="./city2.glb"></a-asset-item>
+            <a-asset-item id="m-lamborghini" src="./lamborghini.glb"></a-asset-item>
+            <a-asset-item id="m-apartamento1" src="./apartamento1.glb"></a-asset-item>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
         <a-entity light="type: ambient; intensity: 1.1"></a-entity>
         <a-entity light="type: directional; intensity: 0.9" position="1 2 1"></a-entity>
 
-        <!-- El modelo aparece anclado sobre la imagen/marcador -->
+        <!-- Marcador 0 · Optimus Prime -->
         <a-entity mindar-image-target="targetIndex: 0">
-            <!-- Wrapper: acuesta el modelo plano sobre el marcador -->
             <a-entity rotation="90 0 0">
-                <!-- El modelo gira en el plano de la tarjeta con su rotación Y -->
-                <a-gltf-model
-                    src="#modelo"
-                    position="0 0 0"
-                    rotation="0 90 0"
-                    scale="0.28 0.28 0.28"
-                    animation-mixer="clip: *; loop: repeat">
-                </a-gltf-model>
+                <a-gltf-model src="#m-optimus" position="0 0 0" rotation="0 0 0" scale="0.014 0.014 0.014" animation-mixer="clip: *; loop: repeat"></a-gltf-model>
+            </a-entity>
+        </a-entity>
+
+        <!-- Marcador 1 · Maqueta 1 -->
+        <a-entity mindar-image-target="targetIndex: 1">
+            <a-entity rotation="90 0 0">
+                <a-gltf-model src="#m-maqueta1" position="0 0 0" rotation="0 0 0" scale="0.0089 0.0089 0.0089" animation-mixer="clip: *; loop: repeat"></a-gltf-model>
+            </a-entity>
+        </a-entity>
+
+        <!-- Marcador 2 · Maqueta 2 -->
+        <a-entity mindar-image-target="targetIndex: 2">
+            <a-entity rotation="90 0 0">
+                <a-gltf-model src="#m-maqueta2" position="0 0 0" rotation="0 0 0" scale="0.026 0.026 0.026" animation-mixer="clip: *; loop: repeat"></a-gltf-model>
+            </a-entity>
+        </a-entity>
+
+        <!-- Marcador 3 · Lamborghini -->
+        <a-entity mindar-image-target="targetIndex: 3">
+            <a-entity rotation="90 0 0">
+                <a-gltf-model src="#m-lamborghini" position="0 0 0" rotation="0 90 0" scale="0.28 0.28 0.28" animation-mixer="clip: *; loop: repeat"></a-gltf-model>
+            </a-entity>
+        </a-entity>
+
+        <!-- Marcador 4 · Apartamento 1 -->
+        <a-entity mindar-image-target="targetIndex: 4">
+            <a-entity rotation="90 0 0">
+                <a-gltf-model src="#m-apartamento1" position="0 0 0" rotation="0 0 0" scale="0.131 0.131 0.131" animation-mixer="clip: *; loop: repeat"></a-gltf-model>
             </a-entity>
         </a-entity>
     </a-scene>
 
     <div class="overlay">
-        <div class="card">📸 Apunta la cámara a la <b>tarjeta impresa</b> y el modelo aparecerá encima.</div>
+        <div class="card">📸 Apunta la cámara a <b>cualquiera de las tarjetas</b> y su modelo aparecerá encima.</div>
     </div>
 </body>
 </html>
