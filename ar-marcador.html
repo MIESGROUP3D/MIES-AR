@@ -5,32 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>MIES-AR · AR sobre marcador</title>
 
-    <!-- A-Frame + MindAR (seguimiento de imagen) + aframe-extras (animaciones) -->
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- Versiones compatibles: MindAR 1.2.5 está hecho para A-Frame 1.3.0 -->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
 
     <style>
-        html, body { margin: 0; padding: 0; overflow: hidden; background: #000; font-family: system-ui, sans-serif; }
-        .overlay {
-            position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-            display: flex; justify-content: center; padding: 18px calc(18px + env(safe-area-inset-left)) calc(22px + env(safe-area-inset-bottom));
-            pointer-events: none;
-        }
-        .card {
-            background: rgba(10,10,12,.78); color: #fff; border: 1px solid rgba(255,255,255,.18);
-            border-radius: 14px; padding: 12px 16px; font-size: 13.5px; line-height: 1.4;
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); text-align: center; max-width: 340px;
-        }
-        .card b { color: #fff; }
+        html, body { margin: 0; padding: 0; overflow: hidden; font-family: system-ui, sans-serif; }
+
         .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; display: flex; align-items: center; gap: 10px;
             padding: calc(14px + env(safe-area-inset-top)) 18px 12px; pointer-events: none; }
-        .badge { width: 34px; height: 34px; border-radius: 9px; background: #fff; display: grid; place-items: center; }
+        .badge { width: 34px; height: 34px; border-radius: 9px; background: #fff; display: grid; place-items: center; box-shadow: 0 2px 10px rgba(0,0,0,.4); }
         .badge svg { width: 18px; height: 18px; color: #000; }
-        .brand { color: #fff; font-weight: 800; letter-spacing: .02em; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+        .brand { color: #fff; font-weight: 800; letter-spacing: .02em; text-shadow: 0 1px 6px rgba(0,0,0,.7); }
         .back { position: fixed; top: calc(14px + env(safe-area-inset-top)); right: 16px; z-index: 21; pointer-events: auto;
-            color: #fff; text-decoration: none; font-size: 13px; background: rgba(10,10,12,.7); border: 1px solid rgba(255,255,255,.2);
+            color: #fff; text-decoration: none; font-size: 13px; background: rgba(10,10,12,.7); border: 1px solid rgba(255,255,255,.25);
             padding: 8px 14px; border-radius: 9999px; backdrop-filter: blur(8px); }
+        .overlay { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; justify-content: center;
+            padding: 18px 18px calc(22px + env(safe-area-inset-bottom)); pointer-events: none; }
+        .card { background: rgba(10,10,12,.78); color: #fff; border: 1px solid rgba(255,255,255,.18); border-radius: 14px;
+            padding: 12px 16px; font-size: 13.5px; line-height: 1.4; backdrop-filter: blur(10px); text-align: center; max-width: 340px; }
+        .card b { color: #fff; }
     </style>
 </head>
 <body>
@@ -43,21 +38,25 @@
     <a-scene
         mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; autoStart: true; uiScanning: yes; uiLoading: yes; uiError: yes"
         color-space="sRGB"
-        renderer="colorManagement: true, physicallyCorrectLights: true, exposure: 1"
+        embedded
+        renderer="colorManagement: true, physicallyCorrectLights: true"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/">
 
+        <a-assets>
+            <a-asset-item id="modelo" src="./lamborghini.glb"></a-asset-item>
+        </a-assets>
+
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!-- Luz para que el modelo se vea bien -->
         <a-entity light="type: ambient; intensity: 1.1"></a-entity>
         <a-entity light="type: directional; intensity: 0.9" position="1 2 1"></a-entity>
 
         <!-- El modelo aparece anclado sobre la imagen/marcador -->
         <a-entity mindar-image-target="targetIndex: 0">
             <a-gltf-model
-                src="./lamborghini.glb"
+                src="#modelo"
                 position="0 0 0.05"
                 rotation="0 0 0"
                 scale="0.28 0.28 0.28"
@@ -67,9 +66,7 @@
     </a-scene>
 
     <div class="overlay">
-        <div class="card">
-            📸 Apunta la cámara a la <b>tarjeta impresa</b> y el modelo aparecerá encima.
-        </div>
+        <div class="card">📸 Apunta la cámara a la <b>tarjeta impresa</b> y el modelo aparecerá encima.</div>
     </div>
 </body>
 </html>
