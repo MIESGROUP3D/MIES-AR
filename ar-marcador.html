@@ -62,13 +62,17 @@
 
         <!-- El modelo aparece anclado sobre la imagen/marcador -->
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model
-                src="#modelo"
-                position="0 0 0"
-                rotation="90 0 0"
-                scale="0.28 0.28 0.28"
-                animation-mixer="clip: *; loop: repeat">
-            </a-gltf-model>
+            <!-- Wrapper: acuesta el modelo plano sobre el marcador -->
+            <a-entity rotation="90 0 0">
+                <!-- El modelo gira en el plano de la tarjeta con su rotación Y -->
+                <a-gltf-model
+                    src="#modelo"
+                    position="0 0 0"
+                    rotation="0 90 0"
+                    scale="0.28 0.28 0.28"
+                    animation-mixer="clip: *; loop: repeat">
+                </a-gltf-model>
+            </a-entity>
         </a-entity>
     </a-scene>
 
