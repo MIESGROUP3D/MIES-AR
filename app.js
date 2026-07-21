@@ -60,29 +60,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Control de Animación ---
 
-    // Reproduce la animación una sola vez (desde el inicio) y oculta el botón de reactivar
-    function playAnimationOnce() {
+    // Algunos modelos van en bucle (data-loop en el selector) y NO muestran el botón "Reactivar";
+    // el resto se reproducen una sola vez y muestran "Reactivar" al terminar.
+    const activeItem = document.querySelector('.model-item.active');
+    let loopAnimation = activeItem ? activeItem.dataset.loop === 'true' : false;
+
+    // Arranca la animación del modelo actual: en bucle o una sola vez según loopAnimation
+    function startAnimation() {
         const anims = modelViewer.availableAnimations || [];
-        if (anims.length > 0) {
-            replayContainer.classList.add('hidden');
-            // Fija (como atributo) un clip válido para el modelo actual; sin esto autoplay reproduce en bucle
-            const clip = anims.includes(modelViewer.animationName) ? modelViewer.animationName : anims[0];
-            modelViewer.setAttribute('animation-name', clip);
+        if (anims.length === 0) return;
+        replayContainer.classList.add('hidden');
+        // Fija (como atributo) un clip válido para el modelo actual
+        const clip = anims.includes(modelViewer.animationName) ? modelViewer.animationName : anims[0];
+        modelViewer.setAttribute('animation-name', clip);
+        const play = () => {
             modelViewer.currentTime = 0;
             try {
-                modelViewer.play({ repetitions: 1 });
+                if (loopAnimation) modelViewer.play();          // bucle infinito
+                else modelViewer.play({ repetitions: 1 });      // una sola vez
             } catch (e) {
                 modelViewer.play();
             }
-        }
+        };
+        play();
+        // Re-forzar tras aplicar el cambio de animation-name (evita carreras al conmutar de modelo)
+        requestAnimationFrame(play);
+        setTimeout(play, 120);
     }
 
-    // Reactivar animación al hacer clic
-    replayBtn.addEventListener('click', playAnimationOnce);
+    // Reactivar animación al hacer clic (solo aplica a modelos sin bucle)
+    replayBtn.addEventListener('click', startAnimation);
 
-    // Cuando la animación termina, mostrar el botón para reactivarla
+    // Cuando la animación termina, mostrar "Reactivar" solo si el modelo NO es en bucle
     modelViewer.addEventListener('finished', () => {
-        if (modelViewer.availableAnimations && modelViewer.availableAnimations.length > 0) {
+        if (!loopAnimation && modelViewer.availableAnimations && modelViewer.availableAnimations.length > 0) {
             replayContainer.classList.remove('hidden');
         }
     });
@@ -90,8 +101,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // Escuchar eventos del visor para actualizar UI
     modelViewer.addEventListener('load', () => {
         document.getElementById('loading-spinner').style.display = 'none';
-        // Arranca la animación una vez (sobre-escribe el bucle de autoplay para poder detectar el final)
-        playAnimationOnce();
+        startAnimation();
+        // Fade-in del nuevo modelo (espera un frame para que ya esté renderizado)
+        requestAnimationFrame(() => modelViewer.classList.remove('switching'));
+        scheduleAutoAdvance();
+    });
+
+    // --- Auto-avance: pasa solo al siguiente modelo mientras no haya interacción ---
+    let idleTimer = null;
+    let arActive = false;
+    const AUTO_ADVANCE_MS = 9000;
+
+    function scheduleAutoAdvance() {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(advanceModel, AUTO_ADVANCE_MS);
+    }
+
+    function advanceModel() {
+        // No avanzar si el usuario está en el panel, en un modal o en AR
+        if (arActive || panel.classList.contains('open') || helpModal.classList.contains('flex')) {
+            scheduleAutoAdvance();
+            return;
+        }
+        const items = Array.from(document.querySelectorAll('.model-item'));
+        if (items.length < 2) return;
+        const idx = items.findIndex((b) => b.classList.contains('active'));
+        const next = items[(idx + 1) % items.length];
+        // El próximo avance se reprograma cuando el nuevo modelo termine de cargar (evento 'load')
+        setModel(next.dataset.src, next.dataset.name, next.dataset.ios || null, next.dataset.loop === 'true');
+    }
+
+    // Cualquier interacción reinicia el temporizador de inactividad
+    ['pointerdown', 'wheel', 'keydown', 'touchstart'].forEach((ev) =>
+        document.addEventListener(ev, scheduleAutoAdvance, { passive: true }));
+    modelViewer.addEventListener('camera-change', (e) => {
+        if (e.detail && e.detail.source === 'user-interaction') scheduleAutoAdvance();
+    });
+    // Pausa el auto-avance durante una sesión de Realidad Aumentada
+    modelViewer.addEventListener('ar-status', (e) => {
+        arActive = e.detail.status === 'session-started';
+        if (arActive) clearTimeout(idleTimer);
+        else scheduleAutoAdvance();
     });
 
     // Evento que se dispara cuando la sesión AR cambia de estado
@@ -172,18 +222,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loadPct) loadPct.textContent = 'Cargando modelo… 0%';
         replayContainer.classList.add('hidden');
     }
-    function setModel(src, name, iosSrc) {
-        resetLoader();
-        if (iosSrc) modelViewer.setAttribute('ios-src', iosSrc);
-        else modelViewer.removeAttribute('ios-src');
-        modelViewer.removeAttribute('animation-name');
-        modelViewer.src = src;
-        modelNameSpan.textContent = name;
+    function setModel(src, name, iosSrc, loop) {
+        loopAnimation = loop === true;
+        replayContainer.classList.add('hidden');
         document.querySelectorAll('.model-item').forEach((b) => b.classList.toggle('active', b.dataset.src === src));
         togglePanel(false);
+        // 1) Desvanece el modelo actual
+        modelViewer.classList.add('switching');
+        // 2) Tras el desvanecido, carga el nuevo (el evento 'load' lo vuelve a mostrar)
+        setTimeout(() => {
+            resetLoader();
+            if (iosSrc) modelViewer.setAttribute('ios-src', iosSrc);
+            else modelViewer.removeAttribute('ios-src');
+            modelViewer.removeAttribute('animation-name');
+            modelNameSpan.textContent = name;
+            modelViewer.src = src;
+        }, 450);
     }
     document.querySelectorAll('.model-item').forEach((btn) => {
-        btn.addEventListener('click', () => setModel(btn.dataset.src, btn.dataset.name, btn.dataset.ios || null));
+        btn.addEventListener('click', () => setModel(btn.dataset.src, btn.dataset.name, btn.dataset.ios || null, btn.dataset.loop === 'true'));
     });
 
     // Abrir el selector de modelos desde la píldora del nombre (abajo a la izquierda)

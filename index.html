@@ -53,13 +53,12 @@
     <section id="stage" class="hero">
         <model-viewer
             id="ar-model"
-            src="./bumblebee_-_optimus_prime_transform_animation.glb"
-            ios-src="./bumblebee.usdz"
-            alt="Modelo 3D Bumblebee - Optimus Prime Transform Animation"
+            src="./city2.glb"
+            alt="Maqueta 2 - escena urbana animada"
             ar
             ar-modes="webxr scene-viewer quick-look"
             autoplay
-            animation-name="Change form"
+            animation-name="Animation"
             animation-crossfade-duration="0"
             ar-scale="auto"
             ar-placement="auto"
@@ -118,7 +117,7 @@
         <div class="dock dock-left">
             <button id="model-switch" class="info-pill" aria-label="Cambiar modelo" title="Cambiar modelo">
                 <span class="info-dot"></span>
-                <span id="model-name" class="info-name">Bumblebee</span>
+                <span id="model-name" class="info-name">Maqueta 2</span>
                 <svg class="info-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg>
             </button>
             <div id="replay-container" class="hidden">
@@ -164,19 +163,43 @@
         <section class="panel-section">
             <h3 class="panel-h3"><span class="text-accent2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></span> Modelos</h3>
             <div class="model-list">
-                <button class="model-item active" data-src="./bumblebee_-_optimus_prime_transform_animation.glb" data-name="Bumblebee" data-ios="./bumblebee.usdz">
+                <button class="model-item" data-src="./bumblebee_-_optimus_prime_transform_animation.glb" data-name="Optimus Prime" data-ios="./bumblebee.usdz">
                     <span class="model-item-dot"></span>
                     <span class="model-item-text">
-                        <span class="model-item-name">Bumblebee</span>
-                        <span class="model-item-sub">Optimus Prime · animado</span>
+                        <span class="model-item-name">Optimus Prime</span>
+                        <span class="model-item-sub">Transformación · animado</span>
                     </span>
                     <svg class="model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 </button>
-                <button class="model-item" data-src="./axonometria.glb" data-name="Axonometría">
+                <button class="model-item" data-src="./city.glb" data-name="Maqueta 1" data-loop="true">
                     <span class="model-item-dot"></span>
                     <span class="model-item-text">
-                        <span class="model-item-name">Axonometría</span>
-                        <span class="model-item-sub">Escena animada · pesada</span>
+                        <span class="model-item-name">Maqueta 1</span>
+                        <span class="model-item-sub">Escena urbana · animada</span>
+                    </span>
+                    <svg class="model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </button>
+                <button class="model-item active" data-src="./city2.glb" data-name="Maqueta 2" data-loop="true">
+                    <span class="model-item-dot"></span>
+                    <span class="model-item-text">
+                        <span class="model-item-name">Maqueta 2</span>
+                        <span class="model-item-sub">Escena urbana · animada</span>
+                    </span>
+                    <svg class="model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </button>
+                <button class="model-item" data-src="./lamborghini.glb" data-name="Lamborghini">
+                    <span class="model-item-dot"></span>
+                    <span class="model-item-text">
+                        <span class="model-item-name">Lamborghini</span>
+                        <span class="model-item-sub">Centenario LP-770 · interior</span>
+                    </span>
+                    <svg class="model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </button>
+                <button class="model-item" data-src="./apartamento1.glb" data-name="Apartamento 1">
+                    <span class="model-item-dot"></span>
+                    <span class="model-item-text">
+                        <span class="model-item-name">Apartamento 1</span>
+                        <span class="model-item-sub">Interior · maqueta</span>
                     </span>
                     <svg class="model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 </button>

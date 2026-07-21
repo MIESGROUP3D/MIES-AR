@@ -53,7 +53,10 @@ model-viewer {
     --poster-color: transparent;
     --progress-bar-color: transparent;
     --progress-mask: transparent;
+    transition: opacity .45s ease;
 }
+/* Desvanecido al cambiar de modelo */
+model-viewer.switching { opacity: 0; }
 model-viewer::part(ar-button) { display: none; }
 
 .vignette {
