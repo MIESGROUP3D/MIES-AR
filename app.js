@@ -110,9 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Auto-avance: pasa solo al siguiente modelo mientras no haya interacción ---
     let idleTimer = null;
     let arActive = false;
+    let carouselEnabled = true;   // se desactiva si se abre un modelo concreto por QR (?modelo=)
     const AUTO_ADVANCE_MS = 9000;
 
     function scheduleAutoAdvance() {
+        if (!carouselEnabled) return;
         clearTimeout(idleTimer);
         idleTimer = setTimeout(advanceModel, AUTO_ADVANCE_MS);
     }
@@ -245,6 +247,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Abrir el selector de modelos desde la píldora del nombre (abajo a la izquierda)
     if (modelSwitch) modelSwitch.addEventListener('click', () => togglePanel(true));
+
+    // --- Deep link por QR: ?modelo=<id> abre ese modelo directamente y desactiva el carrusel ---
+    const qrId = (new URLSearchParams(location.search).get('modelo') || new URLSearchParams(location.search).get('model') || '').replace(/[^a-z0-9_-]/gi, '');
+    if (qrId) {
+        const item = document.querySelector('.model-item[data-id="' + qrId + '"]');
+        if (item) {
+            carouselEnabled = false;
+            clearTimeout(idleTimer);
+            setModel(item.dataset.src, item.dataset.name, item.dataset.ios || null, item.dataset.loop === 'true');
+        }
+    }
 
     // Manejo del estado de carga inicial
     modelViewer.addEventListener('model-visibility', (event) => {
