@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Lanzar AR (compartido por el botón del hero y el CTA inferior)
     function startAR() {
+        if (window.miesTrack) window.miesTrack('ar_launch', { modelo: modelNameSpan.textContent });
         // Mostrar estado de "Buscando" antes de que el navegador tome el control
         arStatusToast.style.opacity = '1';
         arStatusText.textContent = "Iniciando cámara y buscando superficie...";
@@ -226,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function setModel(src, name, iosSrc, loop) {
         loopAnimation = loop === true;
+        if (window.miesTrack) window.miesTrack('model_view', { modelo: name });
         replayContainer.classList.add('hidden');
         document.querySelectorAll('.model-item').forEach((b) => b.classList.toggle('active', b.dataset.src === src));
         togglePanel(false);
@@ -255,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (item) {
             carouselEnabled = false;
             clearTimeout(idleTimer);
+            if (window.miesTrack) window.miesTrack('qr_open', { modelo: item.dataset.name });
             setModel(item.dataset.src, item.dataset.name, item.dataset.ios || null, item.dataset.loop === 'true');
         }
     }
