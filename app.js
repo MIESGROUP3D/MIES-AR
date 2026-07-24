@@ -262,6 +262,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Selector de entrada en móvil: elige un modelo con miniaturas ---
+    const picker = document.getElementById('model-picker');
+    if (picker) {
+        const isMobile = window.matchMedia('(max-width: 820px)').matches || ('ontouchstart' in window);
+        // Se muestra al entrar en móvil (salvo que se venga de un QR con modelo)
+        if (isMobile && !qrId) {
+            carouselEnabled = false;
+            clearTimeout(idleTimer);
+            picker.classList.remove('hidden');
+        }
+        picker.querySelectorAll('.picker-item').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const item = document.querySelector('.model-item[data-id="' + btn.dataset.id + '"]');
+                if (item) {
+                    carouselEnabled = false;
+                    clearTimeout(idleTimer);
+                    if (window.miesTrack) window.miesTrack('picker_select', { modelo: item.dataset.name });
+                    setModel(item.dataset.src, item.dataset.name, item.dataset.ios || null, item.dataset.loop === 'true');
+                }
+                picker.classList.add('hidden');
+            });
+        });
+        const skip = document.getElementById('picker-skip');
+        if (skip) skip.addEventListener('click', () => {
+            picker.classList.add('hidden');
+            carouselEnabled = true;
+            scheduleAutoAdvance();
+        });
+    }
+
     // Manejo del estado de carga inicial
     modelViewer.addEventListener('model-visibility', (event) => {
         if (event.detail.visible) {
