@@ -272,16 +272,47 @@ document.addEventListener('DOMContentLoaded', () => {
             clearTimeout(idleTimer);
             picker.classList.remove('hidden');
         }
+        // Abre la cámara AR directamente para el modelo elegido
+        function launchARDirect(item) {
+            const ua = navigator.userAgent;
+            const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isAndroid = /Android/.test(ua);
+            const glbUrl = new URL(item.dataset.src, location.href).href;
+            const usdzUrl = item.dataset.ios ? new URL(item.dataset.ios, location.href).href : null;
+            if (isIOS && usdzUrl) {
+                // iOS: Quick Look (muestra el modelo y el botón AR)
+                const a = document.createElement('a');
+                a.setAttribute('rel', 'ar');
+                a.setAttribute('href', usdzUrl);
+                a.appendChild(document.createElement('img'));
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => a.remove(), 1500);
+                return true;
+            }
+            if (isAndroid) {
+                // Android: Scene Viewer directo a la cámara AR
+                const intent = 'intent://arvr.google.com/scene-viewer/1.0?file=' + encodeURIComponent(glbUrl) +
+                    '&mode=ar_only&title=' + encodeURIComponent(item.dataset.name) +
+                    '#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=' +
+                    encodeURIComponent(location.href) + ';end;';
+                window.location.href = intent;
+                return true;
+            }
+            return false;
+        }
+
         picker.querySelectorAll('.picker-item').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const item = document.querySelector('.model-item[data-id="' + btn.dataset.id + '"]');
-                if (item) {
-                    carouselEnabled = false;
-                    clearTimeout(idleTimer);
-                    if (window.miesTrack) window.miesTrack('picker_select', { modelo: item.dataset.name });
-                    setModel(item.dataset.src, item.dataset.name, item.dataset.ios || null, item.dataset.loop === 'true');
-                }
+                if (!item) return;
+                carouselEnabled = false;
+                clearTimeout(idleTimer);
+                if (window.miesTrack) window.miesTrack('picker_ar', { modelo: item.dataset.name });
                 picker.classList.add('hidden');
+                // Carga el modelo en el visor (para cuando vuelva del AR) y abre la cámara AR
+                setModel(item.dataset.src, item.dataset.name, item.dataset.ios || null, item.dataset.loop === 'true');
+                launchARDirect(item);
             });
         });
         const skip = document.getElementById('picker-skip');
