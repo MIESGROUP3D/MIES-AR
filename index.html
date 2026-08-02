@@ -56,9 +56,9 @@
     <section id="stage" class="hero">
         <model-viewer
             id="ar-model"
-            src="./city2.glb"
-            ios-src="./city2.usdz"
-            alt="Maqueta 2 - escena urbana animada"
+            src="./apartamento1.glb"
+            ios-src="./apartamento1.usdz"
+            alt="Apartamento 1 - interior 3D"
             ar
             ar-modes="webxr scene-viewer quick-look"
             autoplay
@@ -121,7 +121,7 @@
         <div class="dock dock-left">
             <button id="model-switch" class="info-pill" aria-label="Cambiar modelo" title="Cambiar modelo">
                 <span class="info-dot"></span>
-                <span id="model-name" class="info-name">Maqueta 2</span>
+                <span id="model-name" class="info-name">Apartamento 1</span>
                 <svg class="info-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg>
             </button>
             <div id="replay-container" class="hidden">
@@ -167,6 +167,14 @@
         <section class="panel-section">
             <h3 class="panel-h3"><span class="text-accent2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></span> Modelos</h3>
             <div class="model-list">
+                <button class="model-item active" data-id="apartamento1" data-src="./apartamento1.glb" data-name="Apartamento 1" data-ios="./apartamento1.usdz">
+                    <span class="model-item-dot"></span>
+                    <span class="model-item-text">
+                        <span class="model-item-name">Apartamento 1</span>
+                        <span class="model-item-sub">Interior · maqueta</span>
+                    </span>
+                    <svg class="model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </button>
                 <button class="model-item" data-id="optimus" data-src="./bumblebee_-_optimus_prime_transform_animation.glb" data-name="Optimus Prime" data-ios="./bumblebee.usdz">
                     <span class="model-item-dot"></span>
                     <span class="model-item-text">
@@ -183,7 +191,7 @@
                     </span>
                     <svg class="model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 </button>
-                <button class="model-item active" data-id="maqueta2" data-src="./city2.glb" data-name="Maqueta 2" data-loop="true" data-ios="./city2.usdz">
+                <button class="model-item" data-id="maqueta2" data-src="./city2.glb" data-name="Maqueta 2" data-loop="true" data-ios="./city2.usdz">
                     <span class="model-item-dot"></span>
                     <span class="model-item-text">
                         <span class="model-item-name">Maqueta 2</span>
@@ -196,14 +204,6 @@
                     <span class="model-item-text">
                         <span class="model-item-name">Lamborghini</span>
                         <span class="model-item-sub">Centenario LP-770 · interior</span>
-                    </span>
-                    <svg class="model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                </button>
-                <button class="model-item" data-id="apartamento1" data-src="./apartamento1.glb" data-name="Apartamento 1" data-ios="./apartamento1.usdz">
-                    <span class="model-item-dot"></span>
-                    <span class="model-item-text">
-                        <span class="model-item-name">Apartamento 1</span>
-                        <span class="model-item-sub">Interior · maqueta</span>
                     </span>
                     <svg class="model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 </button>
@@ -263,11 +263,11 @@
             <h2 class="picker-title">¿Qué modelo quieres ver?</h2>
             <p class="picker-sub">Elige uno para verlo en 3D y Realidad Aumentada</p>
             <div class="picker-grid">
+                <button class="picker-item" data-id="apartamento1"><img src="./thumbs/apartamento1.png" alt="" loading="lazy"><span>Apartamento 1</span></button>
                 <button class="picker-item" data-id="optimus"><img src="./thumbs/optimus.png" alt="" loading="lazy"><span>Optimus Prime</span></button>
                 <button class="picker-item" data-id="maqueta1"><img src="./thumbs/maqueta1.png" alt="" loading="lazy"><span>Maqueta 1</span></button>
                 <button class="picker-item" data-id="maqueta2"><img src="./thumbs/maqueta2.png" alt="" loading="lazy"><span>Maqueta 2</span></button>
                 <button class="picker-item" data-id="lamborghini"><img src="./thumbs/lamborghini.png" alt="" loading="lazy"><span>Lamborghini</span></button>
-                <button class="picker-item" data-id="apartamento1"><img src="./thumbs/apartamento1.png" alt="" loading="lazy"><span>Apartamento 1</span></button>
             </div>
             <button id="picker-skip" class="picker-skip">Explorar libremente →</button>
         </div>
